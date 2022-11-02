@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ServerManager {
     private final DatagramSocket serverSocket;
-    private final List<Client> clients = new CopyOnWriteArrayList<>();
+    private final List<Player> clients = new CopyOnWriteArrayList<>();
     private final int MAX_BUF = 65000;
     private final static int serverPort = 9880;
     private static int multicastPort = 4446;
@@ -57,7 +57,7 @@ public class ServerManager {
 
     private void createClient(String name, InetAddress IPAddress, int port) throws IOException, InterruptedException {
         if (!this.verifyClient(name, IPAddress, port)) return;
-        Client client = new Client(name.toLowerCase(), IPAddress, port);
+        Player client = new Player(name.toLowerCase(), IPAddress, port);
         this.clients.add(client);
         this.sendMessage("Servidor [privado]: Cliente registrado com sucesso! Para visualizar os comandos disponíveis digite ::help", IPAddress, port);
 
@@ -94,7 +94,7 @@ public class ServerManager {
     }
 
     private boolean clientIsRegistered(String name, InetAddress IPAddress, int port) throws IOException {
-        Client client = this.getClientByName(name, IPAddress, port, false);
+        Player client = this.getClientByName(name, IPAddress, port, false);
         if (client != null) {
             this.sendMessage("Servidor [privado]: Já existe um cliente cadastrado com este nome, por favor utilize um outro nome.", IPAddress, port);
             return true;
@@ -102,23 +102,23 @@ public class ServerManager {
         return false;
     }
 
-    private Client getClientByPort(InetAddress IPAddress, int port) throws IOException {
-        Optional<Client> clientOpt = this.clients.stream().filter(cli -> cli.getPort() == port).findFirst();
+    private Player getClientByPort(InetAddress IPAddress, int port) throws IOException {
+        Optional<Player> clientOpt = this.clients.stream().filter(cli -> cli.getPort() == port).findFirst();
         if (clientOpt.isEmpty()) {
             this.sendMessage("Servidor [privado]: Cliente não encontrado!", IPAddress, port);
             return null;
         }
-        Client client = clientOpt.get();
+        Player client = clientOpt.get();
         return client;
     }
 
-    private Client getClientByName(String name, InetAddress IPAddress, int port, boolean showWarning) throws IOException {
-        Optional<Client> clientOpt = this.clients.stream().filter(cli -> cli.getName().equals(name.toLowerCase())).findFirst();
+    private Player getClientByName(String name, InetAddress IPAddress, int port, boolean showWarning) throws IOException {
+        Optional<Player> clientOpt = this.clients.stream().filter(cli -> cli.getName().equals(name.toLowerCase())).findFirst();
         if (clientOpt.isEmpty()) {
             if (showWarning) this.sendMessage("Servidor [privado]: Cliente não encontrado!", IPAddress, port);
             return null;
         }
-        Client client = clientOpt.get();
+        Player client = clientOpt.get();
         return client;
     }
 
