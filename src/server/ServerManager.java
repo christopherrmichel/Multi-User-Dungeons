@@ -79,6 +79,14 @@ public class ServerManager {
         this.serverSocket.send(datagram);
     }
 
+    private void sendMulticastFromPlayer(String message, InetAddress IPAddress, int port) throws IOException {
+        for (Player player : this.clients) {
+            if(!(player.getIPAddress().equals(IPAddress) && player.getPort() == port)) {
+                sendMessage(message, player.getIPAddress(), player.getPort());
+            }
+        }
+    }
+
     private boolean verifyClient(String name, InetAddress IPAddress, int port) throws IOException {
         if (this.isEmpty(name, IPAddress, port, "Nome não informado! Por favor informe um nome para cadastrar um cliente.")) return false;
         if (this.clientIsRegistered(name, IPAddress, port)) return false;
