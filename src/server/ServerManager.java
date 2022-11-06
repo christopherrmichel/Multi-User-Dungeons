@@ -1,5 +1,6 @@
 package server;
 
+import server.game.Game;
 import utils.Commands;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,10 +15,11 @@ public class ServerManager {
     private final List<Player> clients = new CopyOnWriteArrayList<>();
     private final int MAX_BUF = 65000;
     private final static int serverPort = 9880;
-    private static int multicastPort = 4446;
+    public Game game;
 
-    public ServerManager() throws IOException {
+    public ServerManager(Game game) throws IOException {
         this.serverSocket = new DatagramSocket(this.serverPort);
+        this.game = game;
     }
 
     public void executeServer() throws IOException, InterruptedException {
@@ -45,6 +47,10 @@ public class ServerManager {
                 case CREATE_USER:
                     this.createClient(param, receivePacket.getAddress(), receivePacket.getPort());
                     break;
+                case EXAMINE_ROOM:
+                    Player currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    this.sendMessage(this.game.examineRoom(currentPlayer, this.clients), receivePacket.getAddress(), receivePacket.getPort());
+                    break;
                 case HELP:
                     this.listCommands(receivePacket.getAddress(), receivePacket.getPort());
                     break;
@@ -69,6 +75,7 @@ public class ServerManager {
     private void listCommands(InetAddress IPAddress, int port) throws IOException {
         StringBuilder sb = new StringBuilder("LISTA DE COMANDOS: \n\n");
         sb.append("::CREATE_USER [name] – criar  usuário;\n");
+        sb.append("::EXAMINE_ROOM – Listar portas e items da sala;\n");
         sb.append("::HELP – listar os comandos;\n");
         this.sendMessage(sb.toString(), IPAddress, port);
     }
@@ -155,5 +162,14 @@ public class ServerManager {
             param = splitData[1];
         }
         return param;
+    }
+
+    private Player getPlayerByIPAndPort(InetAddress IPAddress, int port) {
+        for (Player player : this.clients) {
+            if(player.getIPAddress().equals(IPAddress) && player.getPort() == port) {
+                return player;
+            }
+        }
+        return null;
     }
 }
