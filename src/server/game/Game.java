@@ -25,9 +25,9 @@ public class Game implements IGame{
         this.maze = new Room[2][2];
 
         this.maze[0][0] = new Room(null, null, null, new Door(false), Arrays.asList(new Item("Chave", "Chave da Saída")));
-        this.maze[0][1] = new Room(null, new Door(false), new Door(false), null, null);
-//        this.maze[1][0] = new server.game.Room(null, null, null, new server.game.Door(false), null);
-        this.maze[1][1] = new Room(new Door(false), null, null, null, null);
+        this.maze[0][1] = new Room(null, new Door(false), new Door(false), null, new ArrayList<>());
+//        this.maze[1][0] = new server.game.Room(null, null, null, new server.game.Door(false), new ArrayList<>());
+        this.maze[1][1] = new Room(new Door(false), null, null, null, new ArrayList<>());
 
         for (int i = 0; i < maze.length; i++) {
             for (int j = 0; j < maze[0].length; j++) {
@@ -46,16 +46,16 @@ public class Game implements IGame{
         int currentPosY = currentPlayer.getPosY();
 
         int doors = 0;
-        if (isNull(room.getDoorDown())) {
+        if (!isNull(room.getDoorDown())) {
             doors++;
         }
-        if (isNull(room.getDoorLeft())) {
+        if (!isNull(room.getDoorLeft())) {
             doors++;
         }
-        if (isNull(room.getDoorRight())) {
+        if (!isNull(room.getDoorRight())) {
             doors++;
         }
-        if (isNull(room.getDoorUp())) {
+        if (!isNull(room.getDoorUp())) {
             doors++;
 
         }
@@ -78,7 +78,7 @@ public class Game implements IGame{
         }
 
         // TODO Montar mensagem
-        String message = MessageFormat.format("Esta sala possui: {0} portas\n" + "{1} items", doors, items.size());
+        String message = MessageFormat.format("Sua posicao atual: coordenada ({0},{1}). Esta sala possui: {2} portas\n" + "{3} items", currentPlayer.getPosX(), currentPlayer.getPosY(), doors, items.size());
         return message;
     }
 
@@ -117,7 +117,7 @@ public class Game implements IGame{
     }
 
     @Override
-    public void move(Player player, String direction, List<Player> players) {
+    public String move(Player player, String direction, List<Player> players) {
 
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
@@ -126,55 +126,57 @@ public class Game implements IGame{
 
             switch(direction) {
                 case "L":
-                    if (nonNull(room.getDoorLeft()) && !room.getDoorLeft().isClosed()) {
-                        if (userHasKey(player)) {
+                    if (nonNull(room.getDoorLeft())) {
+                        if ((!room.getDoorLeft().isClosed()) || (room.getDoorLeft().isClosed() && userHasKey(player))) {
                             player.setPosY(currentPosY--);
                         } else {
-                            System.out.println("É necessário uma chave para abrir a porta");
+                            return("Voce precisa de uma chave para abrir esta porta");
                         }
                     } else {
-                        System.out.println("Caminho inválido!");
+                        return("Nao ha uma porta nessa direcao!");
                     }
                     break;
                 case "N":
-                    if (nonNull(room.getDoorUp()) && !room.getDoorUp().isClosed()) {
-                        if (userHasKey(player)) {
+                    if (nonNull(room.getDoorUp())) {
+                        if ((!room.getDoorUp().isClosed()) || (room.getDoorUp().isClosed() && userHasKey(player))) {
                             player.setPosX(currentPosX--);
                         } else {
-                            System.out.println("É necessário uma chave para abrir a porta");
+                            return("Voce precisa de uma chave para abrir esta porta");
                         }
                     } else {
-                        System.out.println("Caminho inválido!");
+                        return("Nao ha uma porta nessa direcao!");
                     }
                     break;
                 case "R":
-                    if (nonNull(room.getDoorRight()) && !room.getDoorRight().isClosed()) {
-                        if (userHasKey(player)) {
-                            player.setPosY(currentPosY++);
+                    if (nonNull(room.getDoorRight())) {
+                        if ((!room.getDoorRight().isClosed()) || (room.getDoorRight().isClosed() && userHasKey(player))) {
+                            currentPosY++;
+                            player.setPosY(currentPosY);
                         } else {
-                            System.out.println("É necessário uma chave para abrir a porta");
+                            return("Voce precisa de uma chave para abrir esta porta");
                         }
                     } else {
-                        System.out.println("Caminho inválido!");
+                        return("Nao ha uma porta nessa direcao!");
                     }
                     break;
                 case "S":
-                    if (nonNull(room.getDoorDown()) && !room.getDoorDown().isClosed()) {
-                        if (userHasKey(player)) {
+                    if (nonNull(room.getDoorDown())) {
+                        if ((!room.getDoorDown().isClosed()) || (room.getDoorDown().isClosed() && userHasKey(player))) {
                             player.setPosX(currentPosX++);
                         } else {
-                            System.out.println("É necessário uma chave para abrir a porta");
+                            return("Voce precisa de uma chave para abrir esta porta");
                         }
                     } else {
-                        System.out.println("Caminho inválido!");
+                        return("Nao ha uma porta nessa direcao!");
                     }
                     break;
                 default:
                     break;
             }
 
-            examineRoom(player, players);
+            return examineRoom(player, players);
         }
+        return("Player nao cadastrado");
     }
 
     private boolean userHasKey(Player player) {

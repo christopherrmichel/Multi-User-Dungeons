@@ -12,7 +12,7 @@ public interface IGame {
 
     void examineObject(Player player, String itemName);
 
-    void move(Player player, String direction, List<Player> players);
+    String move(Player player, String direction, List<Player> players);
 
     void take(Player player, Item item);
 

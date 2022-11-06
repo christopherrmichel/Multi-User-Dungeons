@@ -42,14 +42,19 @@ public class ServerManager {
                 this.sendMessage("Servidor [privado]: Comando não encontrado!", receivePacket.getAddress(), receivePacket.getPort());
                 continue;
             }
-
+            Player currentPlayer;
             switch (command) {
+
                 case CREATE_USER:
                     this.createClient(param, receivePacket.getAddress(), receivePacket.getPort());
                     break;
                 case EXAMINE_ROOM:
-                    Player currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
                     this.sendMessage(this.game.examineRoom(currentPlayer, this.clients), receivePacket.getAddress(), receivePacket.getPort());
+                    break;
+                case MOVE:
+                    currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    this.sendMessage(this.game.move(currentPlayer, param, this.clients), receivePacket.getAddress(), receivePacket.getPort());
                     break;
                 case HELP:
                     this.listCommands(receivePacket.getAddress(), receivePacket.getPort());
@@ -76,6 +81,7 @@ public class ServerManager {
         StringBuilder sb = new StringBuilder("LISTA DE COMANDOS: \n\n");
         sb.append("::CREATE_USER [name] – criar  usuário;\n");
         sb.append("::EXAMINE_ROOM – Listar portas e items da sala;\n");
+        sb.append("::MOVE [Direction] – Move para a próxima sala na direção passada como parâmetro (L,R,N,S);\n");
         sb.append("::HELP – listar os comandos;\n");
         this.sendMessage(sb.toString(), IPAddress, port);
     }
