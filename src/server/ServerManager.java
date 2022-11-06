@@ -15,7 +15,7 @@ public class ServerManager {
     private final DatagramSocket serverSocket;
     private final List<Player> clients = new CopyOnWriteArrayList<>();
     private final int MAX_BUF = 65000;
-    private final static int serverPort = 9880;
+    private final static int serverPort = 7777;
     public Game game;
 
     public ServerManager(Game game) throws IOException {
@@ -136,14 +136,14 @@ public class ServerManager {
     private void listCommands(InetAddress IPAddress, int port) throws IOException {
         StringBuilder sb = new StringBuilder("LISTA DE COMANDOS: \n\n");
         sb.append("::MOVE [Direction] = Move para a proxima sala na direcao passada como parametro (L,R,N,S);\n");
-        sb.append("::EXAMINE_ROOM = Listar portas e items da sala;\n");
+        sb.append("::EXAMINE_ROOM = Lista portas e items da sala;\n");
         sb.append("::EXAMINE_ITEM [item] = Mostra os detalhes de um item;\n");
-        sb.append("::LIST_PLAYERS = Listar usuarios no jogo;\n");
+        sb.append("::LIST_PLAYERS = Lista usuarios no jogo;\n");
         sb.append("::TAKE [item] = Pega o item na sala e adiciona no inventario;\n");
         sb.append("::DROP [item] = Remove o item do inventario e adiciona o item na sala;\n");
         sb.append("::OPEN_INVENTORY = Mostra todos os items coletados pelo player;\n");
-        sb.append("::CREATE_USER [name] = criar  usuario;\n");
-        sb.append("::HELP = listar os comandos;\n");
+        sb.append("::CREATE_USER [name] = cria usuario;\n");
+        sb.append("::HELP = lista os comandos disponiveis no jogo;\n");
         this.sendMessage(sb.toString(), IPAddress, port);
     }
 

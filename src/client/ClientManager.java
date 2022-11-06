@@ -44,7 +44,7 @@ public class ClientManager {
             }
 
             // cria pacote com o dado, o endereço do server e porta do servidor
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9880);
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 7777);
 
             //envia o pacote
             this.clientSocket.send(sendPacket);
