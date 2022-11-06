@@ -2,6 +2,7 @@ package server.game;
 
 import server.Player;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,19 +13,16 @@ import static java.util.stream.Collectors.toList;
 
 public class Game implements IGame{
     private Room[][] maze;
-    private List<Player> players;
     private boolean[][] mazeConfig = {{true,true},
                                       {false,true}};
 
+    public Game() {
+        createMaze();
+    }
+
     @Override
     public void createMaze() {
-//        for (int i = 0; i < mazeConfig.length; i++) {
-//            for (int j = 0; j < mazeConfig.length; j++) {
-//                if (mazeConfig[i][j]) {
-//                    this.maze[i][j] = new server.game.Room();
-//                }
-//            }
-//        }
+        this.maze = new Room[2][2];
 
         this.maze[0][0] = new Room(null, null, null, new Door(false), Arrays.asList(new Item("Chave", "Chave da Saída")));
         this.maze[0][1] = new Room(null, new Door(false), new Door(false), null, null);
@@ -39,9 +37,8 @@ public class Game implements IGame{
     }
 
     @Override
-    public void examineRoom(String username) {
-        Player currentPlayer = getCurrentPlayer(username);
-        if (currentPlayer == null) return;
+    public String examineRoom(Player currentPlayer, List<Player> players) {
+        if (currentPlayer == null) return "Player não cadastrado";
 
         Room room = getCurrentRoom(currentPlayer);
 
@@ -81,28 +78,17 @@ public class Game implements IGame{
         }
 
         // TODO Montar mensagem
-        System.out.printf("Esta sala possui: %d portas\n" +
-                "%d chaves", doors);
-
+        String message = MessageFormat.format("Esta sala possui: {0} portas\n" + "{1} items", doors, items.size());
+        return message;
     }
 
     private Room getCurrentRoom(Player player) {
         return this.maze[player.getPosX()][player.getPosY()];
     }
 
-    private Player getCurrentPlayer(String username) {
-        Player currentPlayer = players.stream().filter(player -> username.equalsIgnoreCase(player.getName()))
-                .findFirst().orElse(null);
-
-        if (isNull(currentPlayer)) {
-            return null;
-        }
-        return currentPlayer;
-    }
 
     @Override
-    public void examineObject(String username, String itemName) {
-        Player currentPlayer = getCurrentPlayer(username);
+    public void examineObject(Player currentPlayer, String itemName) {
         if (currentPlayer == null) return;
 
         String itemDescription = "";
@@ -131,8 +117,7 @@ public class Game implements IGame{
     }
 
     @Override
-    public void move(String username, String direction) {
-        Player player = getCurrentPlayer(username);
+    public void move(Player player, String direction, List<Player> players) {
 
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
@@ -188,7 +173,7 @@ public class Game implements IGame{
                     break;
             }
 
-            examineRoom(username);
+            examineRoom(player, players);
         }
     }
 
@@ -197,8 +182,7 @@ public class Game implements IGame{
     }
 
     @Override
-    public void take(String username, Item item) {
-        Player player = getCurrentPlayer(username);
+    public void take(Player player, Item item) {
 
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
@@ -211,8 +195,7 @@ public class Game implements IGame{
     }
 
     @Override
-    public void drop(String username, Item item) {
-        Player player = getCurrentPlayer(username);
+    public void drop(Player player, Item item) {
 
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
@@ -223,8 +206,7 @@ public class Game implements IGame{
     }
 
     @Override
-    public void openInventory(String username) {
-        Player player = getCurrentPlayer(username);
+    public void openInventory(Player player) {
          List<String> inventory = new ArrayList<>();
 
          if (nonNull(player)) {
@@ -233,8 +215,7 @@ public class Game implements IGame{
     }
 
     @Override
-    public void useObject(String username, Item item, Door door) {
-        Player player = getCurrentPlayer(username);
+    public void useObject(Player player, Item item, Door door) {
 
         if (nonNull(player) && nonNull(item) && door.isClosed()) {
             door.setClosed(false);

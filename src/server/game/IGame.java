@@ -1,22 +1,26 @@
 package server.game;
 
+import server.Player;
+
+import java.util.List;
+
 public interface IGame {
 
     void createMaze();
 
-    void examineRoom(String username);
+    String examineRoom(Player currentPlayer, List<Player> players);
 
-    void examineObject(String username, String itemName);
+    void examineObject(Player player, String itemName);
 
-    void move(String username, String direction);
+    void move(Player player, String direction, List<Player> players);
 
-    void take(String username, Item item);
+    void take(Player player, Item item);
 
-    void drop(String username, Item item);
+    void drop(Player player, Item item);
 
-    void openInventory(String username);
+    void openInventory(Player player);
 
-    void useObject(String username, Item item, Door door);
+    void useObject(Player player, Item item, Door door);
 
     void talk();
 
