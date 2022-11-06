@@ -50,6 +50,9 @@ public class ServerManager {
                 case CREATE_USER:
                     this.createClient(param, receivePacket.getAddress(), receivePacket.getPort());
                     break;
+                case LIST_PLAYERS:
+                    this.listPlayers(receivePacket.getAddress(), receivePacket.getPort());
+                    break;
                 case EXAMINE_ROOM:
                     currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
                     gameResponse = this.game.examineRoom(currentPlayer, this.clients, new GameResponse(null, null));
@@ -108,6 +111,16 @@ public class ServerManager {
         }
     }
 
+    private void listPlayers(InetAddress address, int port) throws IOException {
+        String message = "Players no jogo: ";
+        for (Player player : this.clients) {
+            if(!(player.getIPAddress().equals(address) && player.getPort() == port)) {
+                message += player.getName() + " ";
+            }
+        }
+        this.sendMessage(message, address, port);
+    }
+
     private void createClient(String name, InetAddress IPAddress, int port) throws IOException, InterruptedException {
         if (!this.verifyClient(name, IPAddress, port)) return;
         Player client = new Player(name.toLowerCase(), IPAddress, port);
@@ -122,10 +135,11 @@ public class ServerManager {
 
     private void listCommands(InetAddress IPAddress, int port) throws IOException {
         StringBuilder sb = new StringBuilder("LISTA DE COMANDOS: \n\n");
-        sb.append("::CREATE_USER [name] – criar  usuário;\n");
-        sb.append("::EXAMINE_ROOM – Listar portas e items da sala;\n");
-        sb.append("::MOVE [Direction] – Move para a próxima sala na direção passada como parâmetro (L,R,N,S);\n");
-        sb.append("::HELP – listar os comandos;\n");
+        sb.append("::CREATE_USER [name] = criar  usuario;\n");
+        sb.append("::LIST_PLAYERS = Listar usuarios no jogo;\n");
+        sb.append("::EXAMINE_ROOM = Listar portas e items da sala;\n");
+        sb.append("::MOVE [Direction] = Move para a proxima sala na direcao passada como parametro (L,R,N,S);\n");
+        sb.append("::HELP = listar os comandos;\n");
         this.sendMessage(sb.toString(), IPAddress, port);
     }
 

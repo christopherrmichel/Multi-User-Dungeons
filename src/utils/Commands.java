@@ -2,6 +2,7 @@ package utils;
 
 public enum Commands {
     CREATE_USER("::CREATE_USER"),
+    LIST_PLAYERS("::LIST_PLAYERS"),
     EXAMINE_ROOM("::EXAMINE_ROOM"),
     EXAMINE_ITEM("::EXAMINE_ITEM"),
     TAKE("::TAKE"),
