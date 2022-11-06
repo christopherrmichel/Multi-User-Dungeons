@@ -39,6 +39,8 @@ public class ServerManager {
             Commands command = this.getCommand(splitData);
             String message = this.getMessage(splitData, (command!=null && !command.equals(Commands.DEFAULT)));
             String param = this.getParam(splitData);
+            String messageWhiper = this.getTextWhisper(splitData);
+            String messageTalk = this.getTextTalk(splitData);
             if (command == null) {
                 this.sendMessage("Servidor [privado]: Comando não encontrado!", receivePacket.getAddress(), receivePacket.getPort());
                 continue;
@@ -52,6 +54,15 @@ public class ServerManager {
                     break;
                 case LIST_PLAYERS:
                     this.listPlayers(receivePacket.getAddress(), receivePacket.getPort());
+                    break;
+                case TALK:
+                    currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    this.sendMulticastFromPlayer("Mensagem [publica] de " + currentPlayer.getName() + ": " + messageTalk, receivePacket.getAddress(), receivePacket.getPort());
+                    break;
+                case WHISPER:
+                    Player playerToWhisper = getPlayerByUsername(param);
+                    currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    this.sendMessage("Mensagem [privada] de " + currentPlayer.getName() + ": " + messageWhiper, playerToWhisper.getIPAddress(), playerToWhisper.getPort());
                     break;
                 case EXAMINE_ROOM:
                     currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
@@ -143,16 +154,25 @@ public class ServerManager {
         String message = "Servidor [para todos]: O usuário " + name + " acabou de entrar no chat!";
     }
 
+    private Player getPlayerByUsername(String username) {
+        return this.clients.stream()
+                                    .filter(p -> username.equalsIgnoreCase(p.getName()))
+                                    .findFirst()
+                                    .orElse(null);
+    }
+
     private void listCommands(InetAddress IPAddress, int port) throws IOException {
         StringBuilder sb = new StringBuilder("LISTA DE COMANDOS: \n\n");
-        sb.append("::MOVE [Direction] = Move para a proxima sala na direcao passada como parametro (L,R,N,S);\n");
+        sb.append("::MOVE [direcao] = Move para a proxima sala na direcao passada como parametro (L,R,N,S);\n");
         sb.append("::EXAMINE_ROOM = Lista portas e items da sala;\n");
         sb.append("::EXAMINE_ITEM [item] = Mostra os detalhes de um item;\n");
         sb.append("::LIST_PLAYERS = Lista usuarios no jogo;\n");
+        sb.append("::TALK [mensagem] = Manda mensagem para todos os jogadores;\n");
+        sb.append("::WHISPER [username] [mensagem] = Manda mensagem para um usuario em especifico;\n");
         sb.append("::TAKE [item] = Pega o item na sala e adiciona no inventario;\n");
         sb.append("::DROP [item] = Remove o item do inventario e adiciona o item na sala;\n");
         sb.append("::OPEN_INVENTORY = Mostra todos os items coletados pelo player;\n");
-        sb.append("::CREATE_USER [name] = cria usuario;\n");
+        sb.append("::CREATE_USER [username] = cria usuario;\n");
         sb.append("::HELP = lista os comandos disponiveis no jogo;\n");
         sb.append("::MAP = Mostrar mapa;\n");
         this.sendMessage(sb.toString(), IPAddress, port);
@@ -240,6 +260,27 @@ public class ServerManager {
             param = splitData[1];
         }
         return param;
+    }
+    private String getTextWhisper(String[] splitData) {
+        String messageUser = "";
+        if(splitData.length > 2) {
+            for(int count = 2 ; count < splitData.length; count++) {
+                messageUser += splitData[count] + " ";
+            }
+        }
+
+        return messageUser;
+    }
+
+    private String getTextTalk(String[] splitData) {
+        String messageUser = "";
+        if(splitData.length > 1) {
+            for(int count = 1 ; count < splitData.length; count++) {
+                messageUser += splitData[count] + " ";
+            }
+        }
+
+        return messageUser;
     }
 
     private Player getPlayerByIPAndPort(InetAddress IPAddress, int port) {
