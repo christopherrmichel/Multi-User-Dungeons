@@ -135,10 +135,14 @@ public class ServerManager {
 
     private void listCommands(InetAddress IPAddress, int port) throws IOException {
         StringBuilder sb = new StringBuilder("LISTA DE COMANDOS: \n\n");
-        sb.append("::CREATE_USER [name] = criar  usuario;\n");
-        sb.append("::LIST_PLAYERS = Listar usuarios no jogo;\n");
-        sb.append("::EXAMINE_ROOM = Listar portas e items da sala;\n");
         sb.append("::MOVE [Direction] = Move para a proxima sala na direcao passada como parametro (L,R,N,S);\n");
+        sb.append("::EXAMINE_ROOM = Listar portas e items da sala;\n");
+        sb.append("::EXAMINE_ITEM [item] = Mostra os detalhes de um item;\n");
+        sb.append("::LIST_PLAYERS = Listar usuarios no jogo;\n");
+        sb.append("::TAKE [item] = Pega o item na sala e adiciona no inventario;\n");
+        sb.append("::DROP [item] = Remove o item do inventario e adiciona o item na sala;\n");
+        sb.append("::OPEN_INVENTORY = Mostra todos os items coletados pelo player;\n");
+        sb.append("::CREATE_USER [name] = criar  usuario;\n");
         sb.append("::HELP = listar os comandos;\n");
         this.sendMessage(sb.toString(), IPAddress, port);
     }
