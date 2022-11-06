@@ -2,6 +2,7 @@ package utils;
 
 public enum Commands {
     CREATE_USER("::CREATE_USER"),
+    EXAMINE_ROOM("::EXAMINE_ROOM"),
     HELP("::HELP"),
     DEFAULT(null);
 
