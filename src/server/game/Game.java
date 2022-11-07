@@ -276,7 +276,7 @@ public class Game implements IGame{
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
 
-            Item item = room.getItems().stream().filter(currentItem -> currentItem.getName().equalsIgnoreCase("chave")).findAny().orElse(null);
+            Item item = room.getItems().stream().filter(currentItem -> currentItem.getName().equalsIgnoreCase(itemName)).findAny().orElse(null);
 
             if (nonNull(item)) {
                 player.addItem(item);

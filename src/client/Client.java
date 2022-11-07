@@ -6,7 +6,7 @@ public class Client {
         try {
             System.out.println("Voce esta explorando uma area perto do lago e percebeu que ha uma pequena caverna na qual decide explorar.");
             Thread.sleep(3000);
-            System.out.println("Logo depois de descer algumas pedras para entrar, percebe que e impossível voltar pelo mesmo caminho...");
+            System.out.println("Logo depois de descer algumas pedras para entrar, percebe que e impossivel voltar pelo mesmo caminho...");
             Thread.sleep(3000);
             System.out.println("Sendo assim, o unico jeito de sobreviver e atravessando o labirinto");
             Thread.sleep(3000);
