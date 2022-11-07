@@ -11,8 +11,6 @@ import static java.util.stream.Collectors.toList;
 
 public class Game implements IGame{
     private Room[][] maze;
-    private boolean[][] mazeConfig = {{true,true},
-                                      {false,true}};
 
     public Game() {
         createMaze();
@@ -48,19 +46,21 @@ public class Game implements IGame{
         int currentPosX = currentPlayer.getPosX();
         int currentPosY = currentPlayer.getPosY();
 
-        int doors = 0;
+        Door left = null;
+        Door right = null;
+        Door up = null;
+        Door down = null;
         if (!isNull(room.getDoorDown())) {
-            doors++;
+            down = room.getDoorDown();
         }
         if (!isNull(room.getDoorLeft())) {
-            doors++;
+            left = room.getDoorLeft();
         }
         if (!isNull(room.getDoorRight())) {
-            doors++;
+            right = room.getDoorRight();
         }
         if (!isNull(room.getDoorUp())) {
-            doors++;
-
+            up = room.getDoorUp();
         }
 
         List<String> items = new ArrayList<>();
@@ -80,10 +80,28 @@ public class Game implements IGame{
                     .collect(toList());
         }
 
-        // TODO Montar mensagem
-        String messageUnicast = MessageFormat.format("Sua posicao atual: coordenada ({0},{1}). \nEsta sala possui: {2} portas\n" + "{3} chaves", currentPlayer.getPosX(), currentPlayer.getPosY(), doors, items.size());
+        String messageUnicast = MessageFormat.format("Sua posicao atual: coordenada ({0},{1}). \nEsta sala possui:\n" +
+                "{2}" +
+                "{3}" +
+                "{4}" +
+                "{5}\n" + "{6} chaves",
+                currentPlayer.getPosX(),
+                currentPlayer.getPosY(),
+                nonNull(down) ? "Uma porta " + checkDoor(down) + " para o Sul\n" : "",
+                nonNull(left) ? "Uma porta " + checkDoor(left) + " para o Oeste\n" : "",
+                nonNull(up) ? "Uma porta " + checkDoor(up) + " para o Norte\n" : "",
+                nonNull(right) ? "Uma porta " + checkDoor(right) + " para o Leste\n" : "",
+                items.size());
         gameResponse.setUnicast(messageUnicast);
         return gameResponse;
+    }
+
+    private String checkDoor(Door door) {
+        if (door.isClosed()) {
+            return "fechada";
+        } else {
+            return "aberta";
+        }
     }
 
     private Room getCurrentRoom(Player player) {
@@ -209,6 +227,10 @@ public class Game implements IGame{
         return player.getItems().stream().anyMatch(item -> item.getName().equalsIgnoreCase("Chave"));
     }
 
+    private boolean roomHasKey(Room room) {
+        return room.getItems().stream().anyMatch(item -> item.getName().equalsIgnoreCase("Chave"));
+    }
+
     @Override
     public GameResponse take(Player player, String itemName) {
         GameResponse gameResponse = new GameResponse(null, null);
@@ -242,6 +264,10 @@ public class Game implements IGame{
 
             if (nonNull(item)) {
                 player.removeItem(item);
+
+                if (!roomHasKey(room)) {
+                    room.getItems().add(item);
+                }
 
                 String uniMessage = MessageFormat.format("Voce largou {0}", item.getName());
                 String multiMessage = MessageFormat.format("Player {0} largou {1}", player.getName(), item.getName());
