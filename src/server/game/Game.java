@@ -116,10 +116,10 @@ public class Game implements IGame{
                 "{7}",
                 currentPlayer.getPosX(),
                 currentPlayer.getPosY(),
-                nonNull(down) ? "Uma porta " + checkDoor(down) + " para o Sul\n" : "",
-                nonNull(left) ? "Uma porta " + checkDoor(left) + " para o Oeste\n" : "",
-                nonNull(up) ? "Uma porta " + checkDoor(up) + " para o Norte\n" : "",
-                nonNull(right) ? "Uma porta " + checkDoor(right) + " para o Leste\n" : "",
+                nonNull(down) ? "Uma porta " + checkDoor(down) + " para o Sul (S)\n" : "",
+                nonNull(left) ? "Uma porta " + checkDoor(left) + " para o Oeste (L)\n" : "",
+                nonNull(up) ? "Uma porta " + checkDoor(up) + " para o Norte (N)\n" : "",
+                nonNull(right) ? "Uma porta " + checkDoor(right) + " para o Leste (R)\n" : "",
                 items.size(),
                 !playersInRoom.isEmpty() ? playersInRoom + " esta(ao) presente(s) na mesma sala que voce" : "");
         gameResponse.setUnicast(messageUnicast);
@@ -295,15 +295,14 @@ public class Game implements IGame{
     @Override
     public GameResponse drop(Player player, String itemName) {
         GameResponse gameResponse = new GameResponse(null, null);
-//TODO VERIFICAR PROBLEMA
+
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
-            Item item = room.getItems().stream().filter(currentItem -> currentItem.getName().equalsIgnoreCase("chave")).findAny().orElse(null);
+            Item item = player.getItems().stream().filter(currentItem -> currentItem.getName().equalsIgnoreCase(itemName)).findAny().orElse(null);
 
             if (nonNull(item)) {
-                player.removeItem(item);
-
                 if (!roomHasKey(room)) {
+                    player.removeItem(item);
                     room.getItems().add(item);
                 }
 
