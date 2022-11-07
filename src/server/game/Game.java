@@ -36,9 +36,7 @@ public class Game implements IGame{
     }
 
     @Override
-    public GameResponse examineRoom(Player currentPlayer, List<Player> players) {
-
-        GameResponse gameResponse = new GameResponse(null, null);
+    public GameResponse examineRoom(Player currentPlayer, List<Player> players, GameResponse gameResponse) {
 
         if (currentPlayer == null) {
             gameResponse.setUnicast("Player nao cadastrado");
@@ -135,8 +133,10 @@ public class Game implements IGame{
                 case "L":
                     if (nonNull(room.getDoorLeft())) {
                         if ((!room.getDoorLeft().isClosed()) || (room.getDoorLeft().isClosed() && userHasKey(player))) {
-                            player.setPosY(currentPosY--);
+                            currentPosY--;
+                            player.setPosY(currentPosY);
                             String message = MessageFormat.format("Player {0} moveu para a coordenada ({1},{2})", player.getName(), player.getPosX(), player.getPosY());
+                            gameResponse.setMulticast(message);
 
                         } else {
                             gameResponse.setUnicast("Voce precisa de uma chave para abrir esta porta");
@@ -150,7 +150,10 @@ public class Game implements IGame{
                 case "N":
                     if (nonNull(room.getDoorUp())) {
                         if ((!room.getDoorUp().isClosed()) || (room.getDoorUp().isClosed() && userHasKey(player))) {
-                            player.setPosX(currentPosX--);
+                            currentPosX--;
+                            player.setPosX(currentPosX);
+                            String message = MessageFormat.format("Player {0} moveu para a coordenada ({1},{2})", player.getName(), player.getPosX(), player.getPosY());
+                            gameResponse.setMulticast(message);
                         } else {
                             gameResponse.setUnicast("Voce precisa de uma chave para abrir esta porta");
                             return gameResponse;
@@ -165,6 +168,8 @@ public class Game implements IGame{
                         if ((!room.getDoorRight().isClosed()) || (room.getDoorRight().isClosed() && userHasKey(player))) {
                             currentPosY++;
                             player.setPosY(currentPosY);
+                            String message = MessageFormat.format("Player {0} moveu para a coordenada ({1},{2})", player.getName(), player.getPosX(), player.getPosY());
+                            gameResponse.setMulticast(message);
                         } else {
                             gameResponse.setUnicast("Voce precisa de uma chave para abrir esta porta");
                             return gameResponse;
@@ -177,7 +182,10 @@ public class Game implements IGame{
                 case "S":
                     if (nonNull(room.getDoorDown())) {
                         if ((!room.getDoorDown().isClosed()) || (room.getDoorDown().isClosed() && userHasKey(player))) {
-                            player.setPosX(currentPosX++);
+                            currentPosX++;
+                            player.setPosX(currentPosX);
+                            String message = MessageFormat.format("Player {0} moveu para a coordenada ({1},{2})", player.getName(), player.getPosX(), player.getPosY());
+                            gameResponse.setMulticast(message);
                         } else {
                             gameResponse.setUnicast("Voce precisa de uma chave para abrir esta porta");
                             return gameResponse;
@@ -191,7 +199,7 @@ public class Game implements IGame{
                     break;
             }
 
-            return examineRoom(player, players);
+            return examineRoom(player, players, gameResponse);
         }
         gameResponse.setUnicast("Player nao cadastrado");
         return gameResponse;

@@ -52,7 +52,7 @@ public class ServerManager {
                     break;
                 case EXAMINE_ROOM:
                     currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
-                    gameResponse = this.game.examineRoom(currentPlayer, this.clients);
+                    gameResponse = this.game.examineRoom(currentPlayer, this.clients, new GameResponse(null, null));
                     if(gameResponse.getUnicast() != null)
                         this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
                     if(gameResponse.getMulticast() != null)
@@ -91,7 +91,8 @@ public class ServerManager {
         if (!this.verifyClient(name, IPAddress, port)) return;
         Player client = new Player(name.toLowerCase(), IPAddress, port);
         this.clients.add(client);
-        this.sendMessage("Servidor [privado]: Cliente registrado com sucesso! Para visualizar os comandos disponíveis digite ::help", IPAddress, port);
+        this.sendMulticastFromPlayer(client.getName() + " acabou de entrar no jogo", IPAddress, port);
+        this.sendMessage("Usuario criado com sucesso! Para visualizar os comandos disponíveis digite ::HELP", IPAddress, port);
 
         // evniar mensagem de boas vindas para todos
         Thread.sleep(100);

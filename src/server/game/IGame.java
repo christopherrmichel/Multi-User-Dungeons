@@ -8,7 +8,7 @@ public interface IGame {
 
     void createMaze();
 
-    GameResponse examineRoom(Player currentPlayer, List<Player> players);
+    GameResponse examineRoom(Player currentPlayer, List<Player> players, GameResponse gameResponse);
 
     GameResponse examineObject(Player player, String itemName);
 
