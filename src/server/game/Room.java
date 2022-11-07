@@ -57,12 +57,4 @@ public class Room {
     public void setItems(List<Item> items) {
         this.items = items;
     }
-
-    public void removeItem(Item item) {
-        this.items.removeIf(currentItem -> currentItem.getName().equalsIgnoreCase(item.getName()));
-    }
-
-    public void addItem(Item item) {
-        this.items.add(item);
-    }
 }

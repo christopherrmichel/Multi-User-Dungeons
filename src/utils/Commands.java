@@ -6,6 +6,8 @@ public enum Commands {
     EXAMINE_ITEM("::EXAMINE_ITEM"),
     TAKE("::TAKE"),
     MOVE("::MOVE"),
+    DROP("::DROP"),
+    OPEN_INVENTORY("::OPEN_INVENTORY"),
     HELP("::HELP"),
     DEFAULT(null);
 

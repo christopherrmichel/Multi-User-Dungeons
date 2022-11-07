@@ -14,13 +14,11 @@ public interface IGame {
 
     GameResponse move(Player player, String direction, List<Player> players);
 
-    String take(Player player, String itemName);
+    GameResponse take(Player player, String itemName);
 
-    void drop(Player player, Item item);
+    GameResponse drop(Player player, String itemName);
 
-    void openInventory(Player player);
-
-    void useObject(Player player, Item item, Door door);
+    GameResponse openInventory(Player player);
 
     void talk();
 

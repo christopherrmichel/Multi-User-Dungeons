@@ -22,7 +22,7 @@ public class Game implements IGame{
     public void createMaze() {
         this.maze = new Room[2][2];
 
-        this.maze[0][0] = new Room(null, null, null, new Door(false), Arrays.asList(new Item("chave", "chave da saída")));
+        this.maze[0][0] = new Room(null, null, null, new Door(false), Arrays.asList(new Item("chave", "chave da saida")));
         this.maze[0][1] = new Room(null, new Door(false), new Door(false), null, new ArrayList<>());
 //        this.maze[1][0] = new server.game.Room(null, null, null, new server.game.Door(false), new ArrayList<>());
         this.maze[1][1] = new Room(new Door(false), null, null, null, new ArrayList<>());
@@ -81,7 +81,7 @@ public class Game implements IGame{
         }
 
         // TODO Montar mensagem
-        String messageUnicast = MessageFormat.format("Sua posicao atual: coordenada ({0},{1}). Esta sala possui: {2} portas\n" + "{3} chaves", currentPlayer.getPosX(), currentPlayer.getPosY(), doors, items.size());
+        String messageUnicast = MessageFormat.format("Sua posicao atual: coordenada ({0},{1}). \nEsta sala possui: {2} portas\n" + "{3} chaves", currentPlayer.getPosX(), currentPlayer.getPosY(), doors, items.size());
         gameResponse.setUnicast(messageUnicast);
         return gameResponse;
     }
@@ -104,13 +104,13 @@ public class Game implements IGame{
 
         if (nonNull(currentPlayer.getItems())) {
             currentItem = currentPlayer.getItems().stream()
-                    .filter(item -> itemName.equals(item.getName()))
+                    .filter(item -> itemName.equalsIgnoreCase(item.getName()))
                     .findFirst()
                     .orElse(null);
         }
 
         if (nonNull(currentItem)) {
-            String message = MessageFormat.format("Item examinado: \nNome: {0} \nDescrição: {1}", currentItem.getName(), currentItem.getDescription());
+            String message = MessageFormat.format("Item examinado: \nNome: {0} \nDescricao: {1}", currentItem.getName(), currentItem.getDescription());
             gameResponse.setUnicast(message);
             return gameResponse;
         }
@@ -210,7 +210,8 @@ public class Game implements IGame{
     }
 
     @Override
-    public String take(Player player, String itemName) {
+    public GameResponse take(Player player, String itemName) {
+        GameResponse gameResponse = new GameResponse(null, null);
 
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
@@ -219,42 +220,54 @@ public class Game implements IGame{
 
             if (nonNull(item)) {
                 player.addItem(item);
-                room.removeItem(item);
 
-                String message = MessageFormat.format("Voce coletou {0}", item.getName());
-                return message;
+                String uniMessage = MessageFormat.format("Voce coletou {0}", item.getName());
+                String multiMessage = MessageFormat.format("Player {0} coletou {1}", player.getName(), item.getName());
+                gameResponse.setUnicast(uniMessage);
+                gameResponse.setMulticast(multiMessage);
+                return gameResponse;
             }
         }
-        return "";
+        gameResponse.setUnicast("Nao foi possivel coletar o item desejado");
+        return gameResponse;
     }
 
     @Override
-    public void drop(Player player, Item item) {
+    public GameResponse drop(Player player, String itemName) {
+        GameResponse gameResponse = new GameResponse(null, null);
 
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
+            Item item = room.getItems().stream().filter(currentItem -> currentItem.getName().equalsIgnoreCase("chave")).findAny().orElse(null);
 
-            player.removeItem(item);
-            room.addItem(item);
+            if (nonNull(item)) {
+                player.removeItem(item);
+
+                String uniMessage = MessageFormat.format("Voce largou {0}", item.getName());
+                String multiMessage = MessageFormat.format("Player {0} largou {1}", player.getName(), item.getName());
+                gameResponse.setUnicast(uniMessage);
+                gameResponse.setMulticast(multiMessage);
+                return gameResponse;
+            }
         }
+        gameResponse.setUnicast("Nao foi possivel largar o item");
+        return gameResponse;
     }
 
     @Override
-    public void openInventory(Player player) {
-         List<String> inventory = new ArrayList<>();
+    public GameResponse openInventory(Player player) {
+        GameResponse gameResponse = new GameResponse(null, null);
 
          if (nonNull(player)) {
+             List<String> inventory;
              inventory = player.getItems().stream().map(Item::getName).collect(toList());
+
+             String message = MessageFormat.format("Voce possui {0} no seu inventario", inventory.toString());
+             gameResponse.setUnicast(message);
+             return gameResponse;
          }
-    }
-
-    @Override
-    public void useObject(Player player, Item item, Door door) {
-
-        if (nonNull(player) && nonNull(item) && door.isClosed()) {
-            door.setClosed(false);
-            player.removeItem(item);
-        }
+         gameResponse.setUnicast("Nao foi possivel abrir o inventario");
+         return gameResponse;
     }
 
     @Override

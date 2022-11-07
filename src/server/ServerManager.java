@@ -76,7 +76,28 @@ public class ServerManager {
                     break;
                 case TAKE:
                     currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
-                    this.sendMessage(this.game.take(currentPlayer, param), receivePacket.getAddress(), receivePacket.getPort());
+                    gameResponse = this.game.take(currentPlayer, param);
+                    if (gameResponse.getUnicast() != null)
+                        this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
+                    if (gameResponse.getMulticast() != null)
+                        this.sendMulticastFromPlayer(gameResponse.getMulticast(), receivePacket.getAddress(), receivePacket.getPort());
+                    break;
+                case DROP:
+                    currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    gameResponse = this.game.drop(currentPlayer, param);
+                    if (gameResponse.getUnicast() != null)
+                        this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
+                    if (gameResponse.getMulticast() != null)
+                        this.sendMulticastFromPlayer(gameResponse.getMulticast(), receivePacket.getAddress(), receivePacket.getPort());
+                    break;
+                case OPEN_INVENTORY:
+                    currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    gameResponse = this.game.openInventory(currentPlayer);
+                    if (gameResponse.getUnicast() != null)
+                        this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
+                    if (gameResponse.getMulticast() != null)
+                        this.sendMulticastFromPlayer(gameResponse.getMulticast(), receivePacket.getAddress(), receivePacket.getPort());
+                    break;
                 case HELP:
                     this.listCommands(receivePacket.getAddress(), receivePacket.getPort());
                     break;
