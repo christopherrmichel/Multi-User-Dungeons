@@ -6,6 +6,7 @@ public class Client {
         try {
             ClientManager cm = new ClientManager();
             cm.executeClient();
+
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }

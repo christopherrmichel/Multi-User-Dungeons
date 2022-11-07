@@ -147,9 +147,15 @@ public class ServerManager {
         Player client = new Player(name.toLowerCase(), IPAddress, port);
         this.clients.add(client);
         this.sendMulticastFromPlayer(client.getName() + " acabou de entrar no jogo", IPAddress, port);
-        this.sendMessage("Usuario criado com sucesso! Para visualizar os comandos disponíveis digite ::HELP", IPAddress, port);
-
-        // evniar mensagem de boas vindas para todos
+        this.sendMessage("Usuario criado com sucesso!", IPAddress, port);
+        Thread.sleep(1000);
+        this.sendMessage("Voce acabou de entrar um labirinto", IPAddress, port);
+        this.sendMessage("Existe apenas uma saida e somente o primeiro jogador a passar por ela sobrevive", IPAddress, port);
+        Thread.sleep(1000);
+        this.sendMessage("Para iniciar digite ::CREATE_USER <apelido> inserindo um apelido de sua escolha", IPAddress, port);
+        this.sendMessage("Para verificar os possiveis comandos do jogo digite ::MAP", IPAddress, port);
+        Thread.sleep(1000);
+        this.sendMessage("Boa sorte!", IPAddress, port);
         Thread.sleep(100);
         String message = "Servidor [para todos]: O usuário " + name + " acabou de entrar no chat!";
     }

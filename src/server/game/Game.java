@@ -102,7 +102,7 @@ public class Game implements IGame{
         if (players.size() > 1) {
             playersInRoom = players.stream()
                     .filter(player -> (player.getPosY() == currentPosY
-                            && player.getPosX() == currentPosX) && player.getName().equalsIgnoreCase(currentPlayer.getName()))
+                            && player.getPosX() == currentPosX) && !player.getName().equalsIgnoreCase(currentPlayer.getName()))
                     .map(Player::getName)
                     .collect(toList());
         }
@@ -112,7 +112,8 @@ public class Game implements IGame{
                 "{3}" +
                 "{4}" +
                 "{5}" +
-                "{6} chaves",
+                "{6} chaves\n" +
+                "{7}",
                 currentPlayer.getPosX(),
                 currentPlayer.getPosY(),
                 nonNull(down) ? "Uma porta " + checkDoor(down) + " para o Sul\n" : "",
@@ -120,7 +121,7 @@ public class Game implements IGame{
                 nonNull(up) ? "Uma porta " + checkDoor(up) + " para o Norte\n" : "",
                 nonNull(right) ? "Uma porta " + checkDoor(right) + " para o Leste\n" : "",
                 items.size(),
-                !playersInRoom.isEmpty() ? playersInRoom + "presente(s) na sala\n" : "");
+                !playersInRoom.isEmpty() ? playersInRoom + " esta(ao) presente(s) na mesma sala que voce" : "");
         gameResponse.setUnicast(messageUnicast);
         return gameResponse;
     }
