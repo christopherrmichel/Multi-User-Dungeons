@@ -4,7 +4,11 @@ public class Client {
 
     public static void main(String[] args) {
         try {
-            System.out.println("Voce acabou de entrar um labirinto");
+            System.out.println("Você estava explorando uma área perto do lago e percebeu que havia uma pequena caverna na qual decidiu explorar.");
+            Thread.sleep(1000);
+            System.out.println("Logo depois de descer algumas pedras para entrar, percebeu que é impossível voltar pelo mesmo caminho...");
+            Thread.sleep(1000);
+            System.out.println("Sendo assim, o único jeito de sobreviver é atravessando");
             Thread.sleep(1000);
             System.out.println("Existe apenas uma saida e somente o primeiro jogador a passar por ela sobrevive");
             Thread.sleep(1000);

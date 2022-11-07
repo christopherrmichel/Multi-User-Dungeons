@@ -195,7 +195,7 @@ public class Game implements IGame{
                             gameResponse.setMulticast(message);
 
                         } else {
-                            gameResponse.setUnicast("Voce precisa de uma chave para abrir esta porta");
+                            gameResponse.setUnicast("Voce precisa encontrar uma chave no labirinto para abrir esta porta");
                             return gameResponse;
                         }
                     } else {
