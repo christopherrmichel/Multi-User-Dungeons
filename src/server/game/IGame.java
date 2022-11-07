@@ -8,13 +8,13 @@ public interface IGame {
 
     void createMaze();
 
-    String examineRoom(Player currentPlayer, List<Player> players);
+    GameResponse examineRoom(Player currentPlayer, List<Player> players);
 
-    void examineObject(Player player, String itemName);
+    GameResponse examineObject(Player player, String itemName);
 
-    String move(Player player, String direction, List<Player> players);
+    GameResponse move(Player player, String direction, List<Player> players);
 
-    void take(Player player, Item item);
+    String take(Player player, String itemName);
 
     void drop(Player player, Item item);
 

@@ -3,9 +3,7 @@ package server.game;
 import server.Player;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -24,21 +22,28 @@ public class Game implements IGame{
     public void createMaze() {
         this.maze = new Room[2][2];
 
-        this.maze[0][0] = new Room(null, null, null, new Door(false), Arrays.asList(new Item("Chave", "Chave da Saída")));
+        this.maze[0][0] = new Room(null, null, null, new Door(false), Arrays.asList(new Item("chave", "chave da saída")));
         this.maze[0][1] = new Room(null, new Door(false), new Door(false), null, new ArrayList<>());
 //        this.maze[1][0] = new server.game.Room(null, null, null, new server.game.Door(false), new ArrayList<>());
         this.maze[1][1] = new Room(new Door(false), null, null, null, new ArrayList<>());
 
-        for (int i = 0; i < maze.length; i++) {
-            for (int j = 0; j < maze[0].length; j++) {
-                System.out.println("x");
+        for (int i = 0; i < 2; i++) {
+            System.out.println();
+            for (int j = 0; j < 2; j++) {
+                System.out.print("x");
             }
         }
     }
 
     @Override
-    public String examineRoom(Player currentPlayer, List<Player> players) {
-        if (currentPlayer == null) return "Player não cadastrado";
+    public GameResponse examineRoom(Player currentPlayer, List<Player> players) {
+
+        GameResponse gameResponse = new GameResponse(null, null);
+
+        if (currentPlayer == null) {
+            gameResponse.setUnicast("Player nao cadastrado");
+            return gameResponse;
+        }
 
         Room room = getCurrentRoom(currentPlayer);
 
@@ -78,8 +83,9 @@ public class Game implements IGame{
         }
 
         // TODO Montar mensagem
-        String message = MessageFormat.format("Sua posicao atual: coordenada ({0},{1}). Esta sala possui: {2} portas\n" + "{3} items", currentPlayer.getPosX(), currentPlayer.getPosY(), doors, items.size());
-        return message;
+        String messageUnicast = MessageFormat.format("Sua posicao atual: coordenada ({0},{1}). Esta sala possui: {2} portas\n" + "{3} chaves", currentPlayer.getPosX(), currentPlayer.getPosY(), doors, items.size());
+        gameResponse.setUnicast(messageUnicast);
+        return gameResponse;
     }
 
     private Room getCurrentRoom(Player player) {
@@ -88,36 +94,37 @@ public class Game implements IGame{
 
 
     @Override
-    public void examineObject(Player currentPlayer, String itemName) {
-        if (currentPlayer == null) return;
+    public GameResponse examineObject(Player currentPlayer, String itemName) {
+        GameResponse gameResponse = new GameResponse(null, null);
 
-        String itemDescription = "";
+        if (currentPlayer == null) {
+            gameResponse.setUnicast("Player nao cadastrado");
+            return gameResponse;
+        }
+
+        Item currentItem = null;
 
         if (nonNull(currentPlayer.getItems())) {
-            itemDescription = currentPlayer.getItems().stream()
+            currentItem = currentPlayer.getItems().stream()
                     .filter(item -> itemName.equals(item.getName()))
                     .findFirst()
-                    .orElse(new Item())
-                    .getDescription();
+                    .orElse(null);
         }
 
-        if (itemDescription.isEmpty()) {
-            Room room = getCurrentRoom(currentPlayer);
-
-            if (nonNull(room.getItems()))
-            itemDescription = room.getItems().stream()
-                    .filter(item -> itemName.equals(item.getName()))
-                    .findFirst()
-                    .orElse(new Item())
-                    .getDescription();
+        if (nonNull(currentItem)) {
+            String message = MessageFormat.format("Item examinado: \nNome: {0} \nDescrição: {1}", currentItem.getName(), currentItem.getDescription());
+            gameResponse.setUnicast(message);
+            return gameResponse;
         }
 
-        // TODO Montar mensagem
-        System.out.println("Retornar a descrição do item");
+        gameResponse.setUnicast("Nao ha item para ser examinado");
+        return gameResponse;
     }
 
     @Override
-    public String move(Player player, String direction, List<Player> players) {
+    public GameResponse move(Player player, String direction, List<Player> players) {
+
+        GameResponse gameResponse = new GameResponse(null, null);
 
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
@@ -129,11 +136,15 @@ public class Game implements IGame{
                     if (nonNull(room.getDoorLeft())) {
                         if ((!room.getDoorLeft().isClosed()) || (room.getDoorLeft().isClosed() && userHasKey(player))) {
                             player.setPosY(currentPosY--);
+                            String message = MessageFormat.format("Player {0} moveu para a coordenada ({1},{2})", player.getName(), player.getPosX(), player.getPosY());
+
                         } else {
-                            return("Voce precisa de uma chave para abrir esta porta");
+                            gameResponse.setUnicast("Voce precisa de uma chave para abrir esta porta");
+                            return gameResponse;
                         }
                     } else {
-                        return("Nao ha uma porta nessa direcao!");
+                        gameResponse.setUnicast("Nao ha uma porta nessa direcao!");
+                        return gameResponse;
                     }
                     break;
                 case "N":
@@ -141,10 +152,12 @@ public class Game implements IGame{
                         if ((!room.getDoorUp().isClosed()) || (room.getDoorUp().isClosed() && userHasKey(player))) {
                             player.setPosX(currentPosX--);
                         } else {
-                            return("Voce precisa de uma chave para abrir esta porta");
+                            gameResponse.setUnicast("Voce precisa de uma chave para abrir esta porta");
+                            return gameResponse;
                         }
                     } else {
-                        return("Nao ha uma porta nessa direcao!");
+                        gameResponse.setUnicast("Nao ha uma porta nessa direcao!");
+                        return gameResponse;
                     }
                     break;
                 case "R":
@@ -153,10 +166,12 @@ public class Game implements IGame{
                             currentPosY++;
                             player.setPosY(currentPosY);
                         } else {
-                            return("Voce precisa de uma chave para abrir esta porta");
+                            gameResponse.setUnicast("Voce precisa de uma chave para abrir esta porta");
+                            return gameResponse;
                         }
                     } else {
-                        return("Nao ha uma porta nessa direcao!");
+                        gameResponse.setUnicast("Nao ha uma porta nessa direcao!");
+                        return gameResponse;
                     }
                     break;
                 case "S":
@@ -164,10 +179,12 @@ public class Game implements IGame{
                         if ((!room.getDoorDown().isClosed()) || (room.getDoorDown().isClosed() && userHasKey(player))) {
                             player.setPosX(currentPosX++);
                         } else {
-                            return("Voce precisa de uma chave para abrir esta porta");
+                            gameResponse.setUnicast("Voce precisa de uma chave para abrir esta porta");
+                            return gameResponse;
                         }
                     } else {
-                        return("Nao ha uma porta nessa direcao!");
+                        gameResponse.setUnicast("Nao ha uma porta nessa direcao!");
+                        return gameResponse;
                     }
                     break;
                 default:
@@ -176,7 +193,8 @@ public class Game implements IGame{
 
             return examineRoom(player, players);
         }
-        return("Player nao cadastrado");
+        gameResponse.setUnicast("Player nao cadastrado");
+        return gameResponse;
     }
 
     private boolean userHasKey(Player player) {
@@ -184,16 +202,22 @@ public class Game implements IGame{
     }
 
     @Override
-    public void take(Player player, Item item) {
+    public String take(Player player, String itemName) {
 
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
 
-            if (room.getItems().contains(item)) {
+            Item item = room.getItems().stream().filter(currentItem -> currentItem.getName().equalsIgnoreCase("chave")).findAny().orElse(null);
+
+            if (nonNull(item)) {
                 player.addItem(item);
                 room.removeItem(item);
+
+                String message = MessageFormat.format("Voce coletou {0}", item.getName());
+                return message;
             }
         }
+        return "";
     }
 
     @Override

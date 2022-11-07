@@ -61,7 +61,7 @@ public class Player {
     }
 
     public void removeItem(Item item) {
-        this.items.removeIf(inventoryItem -> inventoryItem.equals(item));
+        this.items.removeIf(currentItem -> currentItem.getName().equalsIgnoreCase(item.getName()));
     }
 
     public InetAddress getIPAddress() {

@@ -1,6 +1,7 @@
 package server;
 
 import server.game.Game;
+import server.game.GameResponse;
 import utils.Commands;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -43,6 +44,7 @@ public class ServerManager {
                 continue;
             }
             Player currentPlayer;
+            GameResponse gameResponse;
             switch (command) {
 
                 case CREATE_USER:
@@ -50,12 +52,31 @@ public class ServerManager {
                     break;
                 case EXAMINE_ROOM:
                     currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
-                    this.sendMessage(this.game.examineRoom(currentPlayer, this.clients), receivePacket.getAddress(), receivePacket.getPort());
+                    gameResponse = this.game.examineRoom(currentPlayer, this.clients);
+                    if(gameResponse.getUnicast() != null)
+                        this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
+                    if(gameResponse.getMulticast() != null)
+                        this.sendMulticastFromPlayer(gameResponse.getMulticast(), receivePacket.getAddress(), receivePacket.getPort());
                     break;
                 case MOVE:
                     currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
-                    this.sendMessage(this.game.move(currentPlayer, param, this.clients), receivePacket.getAddress(), receivePacket.getPort());
+                    gameResponse = this.game.move(currentPlayer, param, this.clients);
+                    if(gameResponse.getUnicast() != null)
+                        this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
+                    if(gameResponse.getMulticast() != null)
+                        this.sendMulticastFromPlayer(gameResponse.getMulticast(), receivePacket.getAddress(), receivePacket.getPort());
                     break;
+                case EXAMINE_ITEM:
+                    currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    gameResponse = this.game.examineObject(currentPlayer, param);
+                    if(gameResponse.getUnicast() != null)
+                        this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
+                    if(gameResponse.getMulticast() != null)
+                        this.sendMulticastFromPlayer(gameResponse.getMulticast(), receivePacket.getAddress(), receivePacket.getPort());
+                    break;
+                case TAKE:
+                    currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    this.sendMessage(this.game.take(currentPlayer, param), receivePacket.getAddress(), receivePacket.getPort());
                 case HELP:
                     this.listCommands(receivePacket.getAddress(), receivePacket.getPort());
                     break;

@@ -3,6 +3,8 @@ package utils;
 public enum Commands {
     CREATE_USER("::CREATE_USER"),
     EXAMINE_ROOM("::EXAMINE_ROOM"),
+    EXAMINE_ITEM("::EXAMINE_ITEM"),
+    TAKE("::TAKE"),
     MOVE("::MOVE"),
     HELP("::HELP"),
     DEFAULT(null);
