@@ -13,9 +13,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ServerManager {
     private final DatagramSocket serverSocket;
-    private final List<Player> clients = new CopyOnWriteArrayList<>();
     private final int MAX_BUF = 65000;
     private final static int serverPort = 7777;
+    private List<Player> clients = new CopyOnWriteArrayList<>();
     public Game game;
 
     public ServerManager(Game game) throws IOException {
@@ -46,7 +46,7 @@ public class ServerManager {
             Player currentPlayer;
             GameResponse gameResponse;
             switch (command) {
-
+//TODO MENSAGENS DE INTRODUCAO DO JOGO
                 case CREATE_USER:
                     this.createClient(param, receivePacket.getAddress(), receivePacket.getPort());
                     break;
@@ -56,10 +56,12 @@ public class ServerManager {
                 case EXAMINE_ROOM:
                     currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
                     gameResponse = this.game.examineRoom(currentPlayer, this.clients, new GameResponse(null, null));
-                    if(gameResponse.getUnicast() != null)
+                    if(gameResponse.getUnicast() != null) {
                         this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
-                    if(gameResponse.getMulticast() != null)
+                    }
+                    if(gameResponse.getMulticast() != null) {
                         this.sendMulticastFromPlayer(gameResponse.getMulticast(), receivePacket.getAddress(), receivePacket.getPort());
+                    }
                     break;
                 case MOVE:
                     currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
@@ -96,6 +98,14 @@ public class ServerManager {
                 case OPEN_INVENTORY:
                     currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
                     gameResponse = this.game.openInventory(currentPlayer);
+                    if (gameResponse.getUnicast() != null)
+                        this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
+                    if (gameResponse.getMulticast() != null)
+                        this.sendMulticastFromPlayer(gameResponse.getMulticast(), receivePacket.getAddress(), receivePacket.getPort());
+                    break;
+                case MAP:
+                    currentPlayer = getPlayerByIPAndPort(receivePacket.getAddress(), receivePacket.getPort());
+                    gameResponse = this.game.openMap(currentPlayer);
                     if (gameResponse.getUnicast() != null)
                         this.sendMessage(gameResponse.getUnicast(), receivePacket.getAddress(), receivePacket.getPort());
                     if (gameResponse.getMulticast() != null)
@@ -144,6 +154,7 @@ public class ServerManager {
         sb.append("::OPEN_INVENTORY = Mostra todos os items coletados pelo player;\n");
         sb.append("::CREATE_USER [name] = cria usuario;\n");
         sb.append("::HELP = lista os comandos disponiveis no jogo;\n");
+        sb.append("::MAP = Mostrar mapa;\n");
         this.sendMessage(sb.toString(), IPAddress, port);
     }
 

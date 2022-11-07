@@ -3,8 +3,10 @@ package server.game;
 import server.Player;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
@@ -18,19 +20,37 @@ public class Game implements IGame{
 
     @Override
     public void createMaze() {
-        this.maze = new Room[2][2];
+        this.maze = new Room[5][5];
 
-        this.maze[0][0] = new Room(null, null, null, new Door(false), Arrays.asList(new Item("chave", "chave da saida")));
-        this.maze[0][1] = new Room(null, new Door(false), new Door(false), null, new ArrayList<>());
-//        this.maze[1][0] = new server.game.Room(null, null, null, new server.game.Door(false), new ArrayList<>());
-        this.maze[1][1] = new Room(new Door(false), null, null, null, new ArrayList<>());
+        this.maze[0][0] = new Room(null, new Door(false), null, new Door(false), new ArrayList<>());
+        this.maze[0][1] = new Room(null, new Door(false), new Door(false), new Door(false), new ArrayList<>());
+        this.maze[0][2] = new Room(null, new Door(false), new Door(false), new Door(false), new ArrayList<>());
+        this.maze[0][3] = new Room(null, null, new Door(false), new Door(false), new ArrayList<>());
+        this.maze[0][4] = new Room(null, new Door(false), new Door(false), null, new ArrayList<>());
 
-        for (int i = 0; i < 2; i++) {
-            System.out.println();
-            for (int j = 0; j < 2; j++) {
-                System.out.print("x");
-            }
-        }
+        this.maze[1][0] = new Room(new Door(false), new Door(false), null, new Door(false), new ArrayList<>());
+        this.maze[1][1] = new Room(new Door(false), null, new Door(false), new Door(false), new ArrayList<>());
+        this.maze[1][2] = new Room(new Door(false), new Door(false), new Door(false), null, asList(new Item("chave", "chave da saida")));
+        this.maze[1][3] = null;
+        this.maze[1][4] = new Room(new Door(false), new Door(false), null, null, new ArrayList<>());
+
+        this.maze[2][0] = new Room(new Door(false), new Door(false), null, null, new ArrayList<>());
+        this.maze[2][1] = null;
+        this.maze[2][2] = new Room(new Door(false), new Door(false), null, new Door(false), new ArrayList<>());
+        this.maze[2][3] = new Room(null, new Door(false), new Door(false), new Door(false), asList(new Item("chave", "chave da saida")));
+        this.maze[2][4] = new Room(new Door(false), new Door(false), new Door(false), null, new ArrayList<>());
+
+        this.maze[3][0] = new Room(new Door(false), new Door(false), null, new Door(false), new ArrayList<>());
+        this.maze[3][1] = new Room(null, new Door(false), new Door(false), new Door(false), asList(new Item("chave", "chave da saida")));
+        this.maze[3][2] = new Room(new Door(false), new Door(false), new Door(false), new Door(false), new ArrayList<>());
+        this.maze[3][3] = new Room(new Door(false), new Door(false), new Door(false), new Door(false), new ArrayList<>());
+        this.maze[3][4] = new Room(new Door(false), new Door(true), new Door(false), null, new ArrayList<>());
+
+        this.maze[4][0] = new Room(new Door(false), null, null, new Door(false), new ArrayList<>());
+        this.maze[4][1] = new Room(new Door(false), null, new Door(false), new Door(false), new ArrayList<>());
+        this.maze[4][2] = new Room(new Door(false), null, new Door(false), new Door(false), new ArrayList<>());
+        this.maze[4][3] = new Room(new Door(false), null, new Door(false), new Door(true), new ArrayList<>());
+        this.maze[4][4] = new Room(new Door(false), null, new Door(false), null, new ArrayList<>());
     }
 
     @Override
@@ -38,6 +58,13 @@ public class Game implements IGame{
 
         if (currentPlayer == null) {
             gameResponse.setUnicast("Player nao cadastrado");
+            return gameResponse;
+        }
+
+        if (isFinalRoom(currentPlayer)) {
+            gameResponse.setUnicast("Parabens, voce chegou ao final do labirinto.\n FIM DE JOGO!");
+            gameResponse.setMulticast("Player {0} venceu o jogo.\n FIM DE JOGO!");
+            gameResponse.setGameOver(true);
             return gameResponse;
         }
 
@@ -70,12 +97,12 @@ public class Game implements IGame{
                     .map(Item::getName)
                     .collect(toList());
         }
-
+//TODO ARRUMAR MOSTRAR PLAYERS NA SALA
         List<String> playersInRoom = new ArrayList<>();
         if (players.size() > 1) {
             playersInRoom = players.stream()
-                    .filter(player -> player.getPosY() == currentPosY
-                            && player.getPosX() == currentPosX)
+                    .filter(player -> (player.getPosY() == currentPosY
+                            && player.getPosX() == currentPosX) && player.getName().equalsIgnoreCase(currentPlayer.getName()))
                     .map(Player::getName)
                     .collect(toList());
         }
@@ -84,14 +111,16 @@ public class Game implements IGame{
                 "{2}" +
                 "{3}" +
                 "{4}" +
-                "{5}\n" + "{6} chaves",
+                "{5}" +
+                "{6} chaves",
                 currentPlayer.getPosX(),
                 currentPlayer.getPosY(),
                 nonNull(down) ? "Uma porta " + checkDoor(down) + " para o Sul\n" : "",
                 nonNull(left) ? "Uma porta " + checkDoor(left) + " para o Oeste\n" : "",
                 nonNull(up) ? "Uma porta " + checkDoor(up) + " para o Norte\n" : "",
                 nonNull(right) ? "Uma porta " + checkDoor(right) + " para o Leste\n" : "",
-                items.size());
+                items.size(),
+                !playersInRoom.isEmpty() ? playersInRoom + "presente(s) na sala\n" : "");
         gameResponse.setUnicast(messageUnicast);
         return gameResponse;
     }
@@ -106,6 +135,14 @@ public class Game implements IGame{
 
     private Room getCurrentRoom(Player player) {
         return this.maze[player.getPosX()][player.getPosY()];
+    }
+
+    private boolean isFinalRoom(Player player) {
+        if (player.getPosX() == 4 && player.getPosY() == 4) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
@@ -257,7 +294,7 @@ public class Game implements IGame{
     @Override
     public GameResponse drop(Player player, String itemName) {
         GameResponse gameResponse = new GameResponse(null, null);
-
+//TODO VERIFICAR PROBLEMA
         if (nonNull(player)) {
             Room room = getCurrentRoom(player);
             Item item = room.getItems().stream().filter(currentItem -> currentItem.getName().equalsIgnoreCase("chave")).findAny().orElse(null);
@@ -309,5 +346,27 @@ public class Game implements IGame{
     @Override
     public void help() {
 
+    }
+
+    @Override
+    public GameResponse openMap(Player player) {
+        GameResponse gameResponse = new GameResponse(null, null);
+        StringBuilder message = new StringBuilder();
+        if (nonNull(player)) {
+            for (int i = 0; i < maze.length; i++) {
+                message.append("\n");
+                for (int j = 0; j < maze.length; j++) {
+                    if (player.getPosX() == i && player.getPosY() == j) {
+                        message.append("o  ");
+                    } else {
+                        message.append("x  ");
+                    }
+                }
+            }
+            gameResponse.setUnicast(message.toString());
+            return gameResponse;
+        }
+        gameResponse.setUnicast("Erro ao mostrar o mapa");
+        return gameResponse;
     }
 }

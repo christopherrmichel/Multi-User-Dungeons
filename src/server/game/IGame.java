@@ -26,4 +26,6 @@ public interface IGame {
 
     void help();
 
+    GameResponse openMap(Player player);
+
 }

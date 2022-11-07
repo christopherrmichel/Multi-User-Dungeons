@@ -10,6 +10,7 @@ public enum Commands {
     DROP("::DROP"),
     OPEN_INVENTORY("::OPEN_INVENTORY"),
     HELP("::HELP"),
+    MAP("::MAP"),
     DEFAULT(null);
 
     private String abbreviation;
